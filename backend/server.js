@@ -1,11 +1,23 @@
-import express from 'express';
-import cors from 'cors';
-import rutas from './routes/usuariosrutas.js';
-
+const express = require('express');
 const app = express();
-app.use(cors());
+require('dotenv').config();
+const admin = require('firebase-admin');
+
+admin.initializeApp({
+  credential: admin.credential.cert({
+    projectId: process.env.FIREBASE_PROJECT_ID,
+    clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+    privateKey: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n'),
+  }),
+});
+
 app.use(express.json());
-app.use(rutas);
+
+const usuariosRoutes = require('./routes/usuarios');
+const licoresRoutes = require('./routes/licores');
+
+app.use('/usuarios', usuariosRoutes);
+app.use('/licores', licoresRoutes);
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Servidor corriendo en puerto ${PORT}`));
+app.listen(PORT, () => console.log(`Servidor escuchando en puerto ${PORT}`));
